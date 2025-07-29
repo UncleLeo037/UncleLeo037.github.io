@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Algorithms</title>
+    <link href="stylesheet.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <header></header>
+
+    <nav id="navbar">
+        <!--The id must be consistent with the page the link is referencing-->
+        <ul>
+            <li><a id="home" class="active" onclick="navigate(this.id)">Home</a></li>
+            <li><a id="linear" onclick="navigate(this.id)">Linear Search</a></li>
+            <li><a id="other" onclick="navigate(this.id)">Other</a></li>
+        </ul>
+    </nav>
+
+    <iframe id="frame"></iframe>
+
+    <script>
+        function navigate(id) {
+            document.getElementById('frame').src = `pages/${id}.html`
+            var current = document.getElementsByClassName('active')
+            while (current.length) {
+                current[0].classList.remove('active')
+            }
+            document.getElementById(id).classList.add('active')
+        }
+
+        function generate() {
+            var amount = 20;
+            var search = 3;
+
+            var array = [];
+
+            for (let i = 0; i < amount; i++) {
+                array[i] = Math.floor(Math.random() * 10);
+            }
+            console.log(array);
+        }
+    </script>
+</body>
+</html>
