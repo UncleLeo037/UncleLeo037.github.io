@@ -7,16 +7,22 @@
 <body>
     <header></header>
 
-    <nav id="sidebar">
-        <!--The id must be consistent with the page the link is referencing-->
-        <ul>
-            <li><a id="home" class="active" onclick="navigate(this.id)">Home</a></li>
-            <li><a id="linear" onclick="navigate(this.id)">Linear Search</a></li>
-            <li><a id="other" onclick="navigate(this.id)">Other</a></li>
-        </ul>
+    <nav id="navbar">
+        <a target="_top">Home</a>
+        <a target="_blank"></a>
     </nav>
 
+    <nav id="sidebar">
+        <!--The id must be consistent with the page the link is referencing-->
+        <a id="home" class="active" onclick="navigate(this.id)">Home</a>
+        <a id="linear" onclick="navigate(this.id)">Linear Search</a>
+        <a id="other" onclick="navigate(this.id)">Other</a>
+    </nav>
+
+    <!--The main view for the website-->
     <iframe id="frame"></iframe>
+
+    <footer></footer>
 
     <script>
         function navigate(id) {
