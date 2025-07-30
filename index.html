@@ -1,21 +1,36 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Algorithms</title>
-    <link href="style.css" rel="stylesheet" type="text/css"/>
-</head>
-<body>
-    <header></header>
 
-    <nav id="navbar">
-        <a target="_top">Home</a>
-        <a target="_blank"></a>
+<head>
+    <title>Leo's Website</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <header id="main-header">
+        <div class="container">
+            <h1>Leo Muller</h1>
+        </div>
+    </header>
+
+    <hr>
+
+    <nav id="navbar" hidden>
+        <div class="container">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Algotithms</a></li>
+                <li><a href="#">Other</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
     </nav>
 
     <nav class="sidebar" id="algorithms" show>
         <!--The id MUST be consistent with the page the link is referencing-->
         <ul>
-            <li><a id="home" class="active" onclick="navigate(this.id)">Home</a></li>
+            <li><a id="home" target="_top" onclick="navigate(this.id)">Home</a></li>
+            <li><a id="bubble" onclick="navigate(this.id)">Sorting Algorithms</a></li>
             <li><a id="linear" onclick="navigate(this.id)">Linear Search</a></li>
             <li><a id="other" onclick="navigate(this.id)">Other</a></li>
         </ul>
@@ -26,6 +41,19 @@
 
     <footer></footer>
 
-    <script src="script.js"></script>
+    <script>
+        //sets iframe to home page at start
+        navigate('home')
+
+        function navigate(id) {
+            document.getElementById('frame').src = `pages/${id}.html`
+            var current = document.getElementsByClassName('active')
+            while (current.length) {
+                current[0].classList.remove('active')
+            }
+            document.getElementById(id).classList.add('active')
+        }
+    </script>
 </body>
+
 </html>

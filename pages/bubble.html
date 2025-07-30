@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="../style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body style="margin: 10px;">
+    <h1>Sorting Algorithms</h1>
+
+    <input type="number" value="10" min="2" id="array">
+
+    <button onclick="generate(document.getElementById('array').value)">generate new array</button>
+    <button onclick="bubble()">run bubble sort</button>
+    <button onclick="selection()">run selection sort</button>
+    <button onclick="insertion()">run insertion sort</button>
+
+    <p id="input"></p>
+    <p id="output"></p>
+
+    <canvas>
+
+    </canvas>
+
+    <script src="../algorithms.js"></script>
+</body>
+
+</html>
