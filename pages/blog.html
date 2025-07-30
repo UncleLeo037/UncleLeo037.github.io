@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<body>
+    <p id="chat"></p>
+
+    <form onsubmit="send()">
+        <input type="text" id="message">
+        <input type="submit" value="send">
+    </form>
+
+    <script type="text/javascript">
+        readChat()
+
+        function readChat() {
+            fetch('blog.json')
+            .then((res) => res.text())
+            .then((text) => {
+                document.getElementById("chat").innerText = text
+            })
+        }
+
+        function writeChat() {
+
+        }
+
+        function send() {
+            let message = document.getElementById("message")
+            writeChat(message.innerText)
+            readChat()
+            message.innerText = ""
+        }
+    </script>
+
+</body>
+
+</html>
