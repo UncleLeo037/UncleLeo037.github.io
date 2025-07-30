@@ -1,0 +1,18 @@
+[
+    {
+        "sender" : "username",
+        "contents" : "Hello World"
+    },
+    {
+        "sender" : "username",
+        "contents" : "Hello Hello World"
+    },
+    {
+        "sender" : "username",
+        "contents" : "Bye World"
+    },
+    {
+        "sender" : "username",
+        "contents" : "Bye bye World"
+    }
+]
