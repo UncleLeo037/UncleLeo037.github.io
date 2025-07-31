@@ -8,25 +8,11 @@
 
 <body>
     <header id="main-header">
-        <div class="container">
-            <h1>Leo Muller</h1>
-        </div>
+        <button class="head" onclick="showMenu()">=</button>
+        <h1 class="head">Leo Muller</h1>
     </header>
 
-    <hr>
-
-    <nav id="navbar" hidden>
-        <div class="container">
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Algotithms</a></li>
-                <li><a href="#">Other</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <nav class="sidebar" show>
+    <nav id="navbar" class="sidebar">
         <!--The id MUST be consistent with the page the link is referencing-->
         <ul>
             <li><a id="home"  onclick="navigate(this.id)">Home</a></li>
@@ -53,6 +39,18 @@
                 current[0].classList.remove('active')
             }
             document.getElementById(id).classList.add('active')
+        }
+
+        function showMenu() {
+            var navbar = document.getElementById("navbar")
+            var frame = document.getElementById("frame")
+            if (navbar.style.display === "none") {
+                navbar.style.display = "block"
+                frame.style.width = "90%"
+            } else {
+                navbar.style.display = "none"
+                frame.style.width = "100%"
+            }
         }
     </script>
 </body>

@@ -8,29 +8,29 @@
 header {
     background-color: coral;
     color: white;
+    padding: 1%;
 }
 
-
-#navbar {
-    background-color: #333;
-    min-width: 100vh;
-    height: 25px;
-}
-#navbar a {
+.head {
     display: inline;
-    color: white;
-    padding: 8px 16px;
-    text-decoration: none;
-}
-#navbar a:hover {
-    background-color: #777;
-    color: black;
-    cursor: pointer;
+    margin-right: 2%;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
-
+.container{
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
 
 .sidebar {
+    border-style: solid;
+    border-color: #333;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
+
     float: left;
     width: 10%;
     min-height: 100vh;
