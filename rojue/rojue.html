@@ -1,0 +1,67 @@
+<html>
+
+<head>
+    <meta name="description" content="roJue">
+    <meta name="author" content="Leo Muller">
+    <meta name="github" content="UncleLeo037">
+    <style>
+        * {
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            text-align: center;
+            text-wrap: nowrap;
+            cursor: context-menu;
+        }
+        .input:hover{
+            cursor: pointer;
+            color: black;
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body id="display">
+    <h1 style="text-align: center;"> - - - roJue - - - </h1>
+    <a class="input" id="settings" onclick="move(id)">settings</a>
+    |
+    <a class="input" id="status" onclick="move(id)">status</a>
+    |
+    <a class="input" id="inventory" onclick="move(id)">inventory</a>
+    |
+    <a class="input" id="spells" onclick="move(id)">spells</a>
+    <br>
+
+    <script>
+        var map = Array.from({length: 50}, () => Array(150).fill(" "));
+
+        room(10, 40, 0, 0)
+        show()
+
+        function room(h, w, y, x) {
+            for (let i = y+1; i <= y+h; i++) {
+                for (let j = x+1; j <= x+w; j++) {
+                    if (i == y+1 || i == y+h) {
+                        map[i][j] = "-"
+                    } else if (j == x+1 || j == x+w) {
+                        map[i][j] = "¦"
+                    }else {
+                        map[i][j] = `<a class="input" id="x${j}y${i}" onclick="move(id)" style="color: black">!</a>`
+                    }
+                }
+            }
+        }
+
+        function show() {
+            for (let i = 0; i < map.length; i++) {
+                document.writeln(map[i].join("") + "<br>")
+            }
+        }
+
+        function move(id) {
+            alert(id)
+        }
+    </script>
+</body>
+
+</html>
