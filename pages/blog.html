@@ -3,7 +3,7 @@
 <body>
     <ul id="chat" style="list-style-type: none;"></ul>
 
-    <form onsubmit="send()">
+    <form onsubmit="writeChat()">
         <input type="text" id="message">
         <input type="submit" value="send">
     </form>
@@ -17,7 +17,7 @@
                 .then((data) => {
                     data.forEach(msg => {
                         let message = document.createElement('li')
-                        message.appendChild(document.createTextNode(data.contents))
+                        message.appendChild(document.createTextNode(msg.contents))
                         document.getElementById("chat").appendChild(message)
                     })
                 })
@@ -25,14 +25,26 @@
         }
 
         function writeChat() {
-
-        }
-
-        function send() {
             let message = document.getElementById("message")
-            writeChat(message.innerText)
-            readChat()
-            message.innerText = ""
+            const temp = {
+                sender: "anon",
+                contents: message.value.trim()
+            }
+
+            fetch('https://uncleleo037.github.io/chat.json', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(temp)
+            })
+                .then(response => response.json())
+                .then(() => {
+                    readChat();
+                    message.value = '';
+                })
+                .catch(error => console.error('Unable to send message', error));
         }
     </script>
 

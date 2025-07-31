@@ -1,18 +1,18 @@
 [
     {
-        "sender" : "username",
+        "sender" : "anon",
         "contents" : "Hello World"
     },
     {
-        "sender" : "username",
+        "sender" : "anon",
         "contents" : "Hello Hello World"
     },
     {
-        "sender" : "username",
+        "sender" : "anon",
         "contents" : "Bye World"
     },
     {
-        "sender" : "username",
+        "sender" : "anon",
         "contents" : "Bye bye World"
     }
 ]
