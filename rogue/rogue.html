@@ -1,0 +1,205 @@
+<html>
+
+<head>
+    <meta name="description" content="Game like rogue">
+    <meta name="author" content="Leo Muller">
+    <meta name="github" content="UncleLeo037">
+    <style>
+        * {
+            background-color: black;
+            color: black;
+            font-family: monospace;
+            text-align: center;
+            text-wrap: nowrap;
+            cursor: context-menu;
+
+            /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively */
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .visible,
+        .visible * {
+            color: white;
+            background-color: black;
+        }
+
+        a:hover {
+            cursor: pointer;
+            color: black;
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="visible"> - - - Logue - - - </h1>
+
+    <div id="start">
+        <a onclick="generate()">new game</a>
+        |
+        <a onclick="">load game</a>
+        |
+
+    </div>
+
+    <div class="visible" id="menu">
+        <a onclick="menu('settings')">settings</a>
+        |
+        <a onclick="menu('status')">status</a>
+        |
+        <a onclick="menu('inventory')">inventory</a>
+        |
+        <a onclick="menu('spells')">spells</a>
+    </div>
+
+    <div id="display"></div>
+</body>
+
+<script>
+    //parameters for map size
+    const GRID_HEIGHT = 24
+    const GRID_WIDTH = 132
+
+    //parameters for room generations
+    const NUM_ROOMS = 6
+    const MIN = 4
+    const MAX = 10
+
+    //the map is public as changes will be made to it often
+    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH))
+
+    const h_wall = "<span class='visible'>-</span>"
+    const v_wall = "<span class='visible'>¦</span>"
+    const corn = "<span class='visible'>-</span>"
+
+    //all method calls will later be tied to inputs
+    generate()
+    show()
+
+    function generate() {
+        //fills every empty space with 'e'
+        MAP.forEach(line => {
+            for (let i = 0; i < GRID_WIDTH; i++) {
+                line[i] = "e"
+            }
+        })
+
+        let rooms = 0
+        let coords = []
+        while (rooms < NUM_ROOMS) {
+            let room = {
+                height: Math.floor(Math.random() * (MAX - MIN)) + MIN,
+                width: (Math.floor(Math.random() * (MAX - MIN)) + MIN) * 2,
+                yCoord: Math.floor(Math.random() * GRID_HEIGHT),
+                xCoord: Math.floor(Math.random() * GRID_WIDTH),
+            }
+
+            if (!(room.xCoord + room.width > GRID_WIDTH || room.yCoord + room.height > GRID_HEIGHT)) {
+                rooms++
+                coords.push({ y: room.yCoord + Math.floor(room.height / 2), x: room.xCoord + Math.floor(room.width / 2) })
+                roomToArray(room)
+            }
+        }
+
+        //loop through coords and add shortest pairs to corridors
+        for (let i = 0; i < coords.length - 1; i++) {
+            let goal = coords[i + 1]
+            let dist = getDist(coords[i], goal)
+            for (let j = i + 2; j < coords.length; j++) {
+                let temp = getDist(coords[i], coords[j])
+                if (temp < dist) {
+                    dist = temp
+                    goal = coords[j]
+                }
+            }
+            corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
+        }
+    }
+
+    function getDist(start, goal) {
+        Math.abs((start.x - goal.x) * (start.y - goal.y))
+    }
+
+    function corridorToArray(c) {
+        let h_cor = "<span class='visible'>#</span>"
+        let v_cor = "<span class='visible'>#</span>"
+
+        //should consider overwriting the checks to look for "e"
+
+        for (let i = Math.min(...c.y); i < Math.max(...c.y); i++) {
+            if (MAP[i][c.x[0]] !== `<a onclick="move({x: ${c.x[0]}, y: ${i}})">!</a>`) {
+                if (MAP[i][c.x[0]] !== v_wall) {
+                    MAP[i][c.x[0]] = v_cor
+                } else {
+                    //code to wrap corridor arround walls
+                }
+            }
+        }
+        for (let j = Math.min(...c.x); j < Math.max(...c.x) + 1; j++) {
+            if (MAP[c.y[1]][j] !== `<a onclick="move({x: ${j}, y: ${c.y[1]}})">!</a>`) {
+                if (MAP[c.y[1]][j] !== h_wall) {
+                    MAP[c.y[1]][j] = h_cor
+                } else {
+
+                }
+            }
+        }
+        //console.log(c)
+    }
+
+    function roomToArray(room) {
+
+        for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
+            for (let j = room.xCoord; j < room.xCoord + room.width; j++) {
+                //tile must be redefined on every loop as ID is used for navigation
+                let tile = `<a onclick="move({x: ${j}, y: ${i}})">!</a>`
+                if (!(MAP[i][j] === tile)) {
+
+                    if (i == room.yCoord || i == room.yCoord + room.height - 1) {
+                        if (!(MAP[i][j] === v_wall)) {
+                            MAP[i][j] = h_wall
+                        }
+
+                    } else if (j == room.xCoord || j == room.xCoord + room.width - 1) {
+                        if (!(MAP[i][j] === h_wall)) {
+                            MAP[i][j] = v_wall
+                        }
+
+                    } else {
+                        MAP[i][j] = tile
+                    }
+                }
+            }
+        }
+    }
+
+    function aStar(start, goal, coords) {
+        let openSet = [start]
+
+        let cameFrom
+
+
+    }
+
+    //takes MAP array and outputs it to screen
+    function show() {
+        let display = document.getElementById("display")
+        display.innerHTML = ""
+        for (let i = 0; i < MAP.length; i++) {
+            display.innerHTML += MAP[i].join("") + "<br>"
+        }
+    }
+
+    function menu(id) {
+        console.log("You have opened your " + id)
+    }
+
+    //will contain calls to search algorithm to move
+    function move(id) {
+        console.log("You are moving to location x" + id.x + ", y" + id.y)
+    }
+</script>
+
+</html>
