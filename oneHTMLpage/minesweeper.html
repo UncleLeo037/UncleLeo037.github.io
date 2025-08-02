@@ -1,0 +1,77 @@
+<html>
+
+<head>
+    <style>
+        * {
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            text-wrap: nowrap;
+            cursor: context-menu;
+        }
+
+        a:hover {
+            cursor: pointer;
+            color: black;
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+        SELECT DIFFICULTY:
+        <a onclick="generate(9, 9, 10)">beginner</a>
+        |
+        <a onclick="generate(16, 16, 40)">intermediate</a>
+        |
+        <a onclick="generate(30, 16, 100)">expert</a>
+    </div>
+
+    <div id="display"></div>
+
+    <script>
+
+        var field = []
+        var mine = []
+        var sweeper = 0
+
+        function generate(x, y, m) {
+            //document.getElementById("menu").style.display = "none"
+            for (let i = 0; i < y; i++) {
+                let temp = []
+                for (let j = 0; j < x; j++) {
+                    temp.push(`<a id="${j},${j}" onclick="check(this.id)">#</a>`)
+                }
+                field.push(temp)
+            }
+            layer(x, y, m)
+            show()
+        }
+
+        function layer(x, y, m) {
+            for (let i = 0; i < m; i++) {
+                let id = `${Math.floor(Math.random() * x)}, ${Math.floor(Math.random() * y)}`
+                mine.push(id)
+            }
+        }
+
+        function show() {
+            let item = document.getElementById('display')
+            item.innerHTML = ""
+            for (let i = 0; i < field.length; i++) {
+                item.innerHTML += field[i].join("") + "<br>"
+            }
+        }
+
+        function check(id) {
+            if (mine.includes(id)) {
+                document.write("You Lose!")
+            } else {
+                document.getElementById(id).style.color = "black"
+            }
+        }
+    </script>
+</body>
+
+</html>

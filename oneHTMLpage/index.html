@@ -73,6 +73,9 @@
     const h_wall = "<span class='visible'>-</span>"
     const v_wall = "<span class='visible'>¦</span>"
     const corn = "<span class='visible'>-</span>"
+    const floor = "f"
+
+    document.on
 
     //all method calls will later be tied to inputs
     generate()
@@ -122,6 +125,10 @@
         Math.abs((start.x - goal.x) * (start.y - goal.y))
     }
 
+    function checkRoom(room, rooms) {
+
+    }
+
     function corridorToArray(c) {
         let h_cor = "<span class='visible'>#</span>"
         let v_cor = "<span class='visible'>#</span>"
@@ -148,7 +155,7 @@
         }
         //console.log(c)
     }
-
+    
     function roomToArray(room) {
 
         for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
