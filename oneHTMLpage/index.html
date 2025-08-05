@@ -40,7 +40,7 @@
 <body>
     <h1 class="visible"> - - - Logue - - - </h1>
 
-    <div id="start">
+    <div class id="start">
         <a onclick="generate()">new game</a>
         |
         <a onclick="">load game</a>
@@ -63,8 +63,8 @@
 
 <script>
     //parameters for map size
-    const GRID_HEIGHT = 24
-    const GRID_WIDTH = 130
+    const GRID_HEIGHT = 42
+    const GRID_WIDTH = 42
 
     //parameters for room generations
     const NUM_ROOMS = 6
@@ -74,29 +74,71 @@
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
     const v_wall = "<span class='visible'>|</span>"
-    const back = "e"
+    const back = "#"
+    const floor = "."
+    const player = "<span class='visible'>i</span>"
 
     //the map is public as changes will be made to it often
     const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(back))
 
+    var player_loc = {x: -1, y: -1}
+
     //all method calls will later be tied to inputs
     generate()
     show()
+    //alert("This is best played at 125% zoom on desktop")
+    document.addEventListener("keydown", function(event) {
+        switch (event.key) {
+            case "w":
+                if (MAP[player_loc.y-1][player_loc.x] === floor) {
+                    MAP[player_loc.y][player_loc.x] = floor
+                    player_loc.y--
+                    MAP[player_loc.y][player_loc.x] = player
+                }
+                break;
+            case "a":
+                if (MAP[player_loc.y][player_loc.x-1] === floor) {
+                    MAP[player_loc.y][player_loc.x] = floor
+                    player_loc.x--
+                    MAP[player_loc.y][player_loc.x] = player
+                }
+                break;
+            case "s":
+                if (MAP[player_loc.y+1][player_loc.x] === floor) {
+                    MAP[player_loc.y][player_loc.x] = floor
+                    player_loc.y++
+                    MAP[player_loc.y][player_loc.x] = player
+                }
+                break;
+            case "d":
+                if (MAP[player_loc.y][player_loc.x+1] === floor) {
+                    MAP[player_loc.y][player_loc.x] = floor
+                    player_loc.x++
+                    MAP[player_loc.y][player_loc.x] = player
+                }
+                break;
+        }
+        console.log(event.key)
+        show()
+    })
+
 
     function generate() {
-        let rooms = 0
+
+        //create and place rooms
         let coords = []
-        while (rooms < NUM_ROOMS) {
+        while (coords.length < NUM_ROOMS) {
             let room = {
                 height: Math.floor(Math.random() * (MAX - MIN)) + MIN,
                 width: Math.floor(Math.random() * (MAX - MIN)) + MIN,
                 yCoord: Math.floor(Math.random() * GRID_HEIGHT),
                 xCoord: Math.floor(Math.random() * GRID_WIDTH),
             }
-
             if (!(room.xCoord + room.width > GRID_WIDTH || room.yCoord + room.height > GRID_HEIGHT)) {
-                rooms++
-                coords.push({ y: room.yCoord + Math.floor(room.height / 2), x: room.xCoord + Math.floor(room.width / 2) })
+                coords.push({
+                    y: room.yCoord + Math.floor(room.height / 2),
+                    x: room.xCoord + Math.floor(room.width / 2)
+                })
                 roomToArray(room)
             }
         }
@@ -114,19 +156,38 @@
             }
             corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
+
+        player_loc.x = coords[coords.length-1].x
+        player_loc.y =  coords[coords.length-1].y
+        MAP[player_loc.y][player_loc.x] = player
+        //MAP[coords[0].y][coords[0].x] = "<span class='visible'>@</span>"
     }
 
     function getDist(start, goal) {
         Math.abs((start.x - goal.x) * (start.y - goal.y))
     }
 
-    function corridorToArray(c) {
-        let top_cor = "<span class='visible'>_</span>"
-        let bot_cor = "<span class='visible'>¯</span>"
-        let side_cor = "<span class='visible'>|</span>"
+    //adds HTML accurate elements to array for rooms
+    function roomToArray(room) {
+        for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
+            for (let j = room.xCoord; j < room.xCoord + room.width; j++) {
+                if (!(MAP[i][j] === floor)) {
+                    if (i == room.yCoord || i == room.yCoord + room.height - 1) {
+                        MAP[i][j] = h_wall
+                    } else if (j == room.xCoord || j == room.xCoord + room.width - 1) {
+                        MAP[i][j] = v_wall
+                    } else {
+                        MAP[i][j] = floor
+                    }
+                }
+            }
+        }
+    }
 
+    //adds HTML accurate elements to array for corridors
+    function corridorToArray(c) {
         for (let i = Math.min(...c.y); i < Math.max(...c.y) + 1; i++) {
-            MAP[i][c.x[1]] = `<a onclick="move({x: ${c.x[0]}, y: ${i}})">!</a>`
+            MAP[i][c.x[1]] = floor
             if (MAP[i][c.x[1] - 1] === back) {
                 MAP[i][c.x[1] - 1] = v_wall
             }
@@ -135,30 +196,12 @@
             }
         }
         for (let j = Math.min(...c.x); j < Math.max(...c.x) + 1; j++) {
-            MAP[c.y[0]][j] = `<a onclick="move({x: ${j}, y: ${c.y[1]}})">!</a>`
+            MAP[c.y[0]][j] = floor
             if (MAP[c.y[0] - 1][j] === back) {
                 MAP[c.y[0] - 1][j] = h_wall
             }
             if (MAP[c.y[0] + 1][j] === back) {
                 MAP[c.y[0] + 1][j] = h_wall
-            }
-        }
-    }
-
-    function roomToArray(room) {
-        for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
-            for (let j = room.xCoord; j < room.xCoord + room.width; j++) {
-                //tile must be redefined on every loop as ID is used for navigation
-                let tile = `<a onclick="move({x: ${j}, y: ${i}})">!</a>`
-                if (!(MAP[i][j] === tile)) {
-                    if (i == room.yCoord || i == room.yCoord + room.height - 1) {
-                        MAP[i][j] = h_wall
-                    } else if (j == room.xCoord || j == room.xCoord + room.width - 1) {
-                        MAP[i][j] = v_wall
-                    } else {
-                        MAP[i][j] = tile
-                    }
-                }
             }
         }
     }
@@ -176,7 +219,6 @@
         console.log("You have opened your " + id)
     }
 
-    //will contain calls to search algorithm to move
     function move(id) {
         console.log("You are moving to location x" + id.x + ", y" + id.y)
     }
