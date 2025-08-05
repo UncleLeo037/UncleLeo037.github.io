@@ -19,6 +19,10 @@
             -ms-user-select: none;
         }
 
+        #display {
+            transform: scaleY(0.5);
+        }
+
         .visible,
         .visible * {
             color: white;
@@ -60,41 +64,32 @@
 <script>
     //parameters for map size
     const GRID_HEIGHT = 24
-    const GRID_WIDTH = 132
+    const GRID_WIDTH = 130
 
     //parameters for room generations
     const NUM_ROOMS = 6
-    const MIN = 4
+    const MIN = 5
     const MAX = 10
 
+    //constant html elements
+    const h_wall = "<span class='visible'>=</span>"
+    const v_wall = "<span class='visible'>|</span>"
+    const back = "e"
+
     //the map is public as changes will be made to it often
-    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH))
-
-    const h_wall = "<span class='visible'>-</span>"
-    const v_wall = "<span class='visible'>¦</span>"
-    const corn = "<span class='visible'>-</span>"
-    const floor = "f"
-
-    document.on
+    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(back))
 
     //all method calls will later be tied to inputs
     generate()
     show()
 
     function generate() {
-        //fills every empty space with 'e'
-        MAP.forEach(line => {
-            for (let i = 0; i < GRID_WIDTH; i++) {
-                line[i] = "e"
-            }
-        })
-
         let rooms = 0
         let coords = []
         while (rooms < NUM_ROOMS) {
             let room = {
                 height: Math.floor(Math.random() * (MAX - MIN)) + MIN,
-                width: (Math.floor(Math.random() * (MAX - MIN)) + MIN) * 2,
+                width: Math.floor(Math.random() * (MAX - MIN)) + MIN,
                 yCoord: Math.floor(Math.random() * GRID_HEIGHT),
                 xCoord: Math.floor(Math.random() * GRID_WIDTH),
             }
@@ -125,69 +120,47 @@
         Math.abs((start.x - goal.x) * (start.y - goal.y))
     }
 
-    function checkRoom(room, rooms) {
-
-    }
-
     function corridorToArray(c) {
-        let h_cor = "<span class='visible'>#</span>"
-        let v_cor = "<span class='visible'>#</span>"
+        let top_cor = "<span class='visible'>_</span>"
+        let bot_cor = "<span class='visible'>¯</span>"
+        let side_cor = "<span class='visible'>|</span>"
 
-        //should consider overwriting the checks to look for "e"
-
-        for (let i = Math.min(...c.y); i < Math.max(...c.y); i++) {
-            if (MAP[i][c.x[0]] !== `<a onclick="move({x: ${c.x[0]}, y: ${i}})">!</a>`) {
-                if (MAP[i][c.x[0]] !== v_wall) {
-                    MAP[i][c.x[0]] = v_cor
-                } else {
-                    //code to wrap corridor arround walls
-                }
+        for (let i = Math.min(...c.y); i < Math.max(...c.y) + 1; i++) {
+            MAP[i][c.x[1]] = `<a onclick="move({x: ${c.x[0]}, y: ${i}})">!</a>`
+            if (MAP[i][c.x[1] - 1] === back) {
+                MAP[i][c.x[1] - 1] = v_wall
+            }
+            if (MAP[i][c.x[1] + 1] === back) {
+                MAP[i][c.x[1] + 1] = v_wall
             }
         }
         for (let j = Math.min(...c.x); j < Math.max(...c.x) + 1; j++) {
-            if (MAP[c.y[1]][j] !== `<a onclick="move({x: ${j}, y: ${c.y[1]}})">!</a>`) {
-                if (MAP[c.y[1]][j] !== h_wall) {
-                    MAP[c.y[1]][j] = h_cor
-                } else {
-
-                }
+            MAP[c.y[0]][j] = `<a onclick="move({x: ${j}, y: ${c.y[1]}})">!</a>`
+            if (MAP[c.y[0] - 1][j] === back) {
+                MAP[c.y[0] - 1][j] = h_wall
+            }
+            if (MAP[c.y[0] + 1][j] === back) {
+                MAP[c.y[0] + 1][j] = h_wall
             }
         }
-        //console.log(c)
     }
-    
-    function roomToArray(room) {
 
+    function roomToArray(room) {
         for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
             for (let j = room.xCoord; j < room.xCoord + room.width; j++) {
                 //tile must be redefined on every loop as ID is used for navigation
                 let tile = `<a onclick="move({x: ${j}, y: ${i}})">!</a>`
                 if (!(MAP[i][j] === tile)) {
-
                     if (i == room.yCoord || i == room.yCoord + room.height - 1) {
-                        if (!(MAP[i][j] === v_wall)) {
-                            MAP[i][j] = h_wall
-                        }
-
+                        MAP[i][j] = h_wall
                     } else if (j == room.xCoord || j == room.xCoord + room.width - 1) {
-                        if (!(MAP[i][j] === h_wall)) {
-                            MAP[i][j] = v_wall
-                        }
-
+                        MAP[i][j] = v_wall
                     } else {
                         MAP[i][j] = tile
                     }
                 }
             }
         }
-    }
-
-    function aStar(start, goal, coords) {
-        let openSet = [start]
-
-        let cameFrom
-
-
     }
 
     //takes MAP array and outputs it to screen
