@@ -13,14 +13,16 @@
             text-wrap: nowrap;
             cursor: context-menu;
 
-            /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively */
+            /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively 
             user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
+            */
         }
 
         #display {
             transform: scaleY(0.5);
+            font-size: large;
         }
 
         .visible,
@@ -40,15 +42,11 @@
 <body>
     <h1 class="visible"> - - - Logue - - - </h1>
 
-    <div class id="start">
-        <a onclick="generate()">new game</a>
-        |
-        <a onclick="">load game</a>
-        |
-
+    <div class="visible" id="start">
+        <a onclick="start()">NEW GAME</a>
     </div>
 
-    <div class="visible" id="menu">
+    <div class="visible" id="menu" style="display: none;">
         <a onclick="menu('settings')">settings</a>
         |
         <a onclick="menu('status')">status</a>
@@ -64,12 +62,12 @@
 <script>
     //parameters for map size
     const GRID_HEIGHT = 42
-    const GRID_WIDTH = 42
+    const GRID_WIDTH = 128
 
     //parameters for room generations
-    const NUM_ROOMS = 6
+    const NUM_ROOMS = 10
     const MIN = 5
-    const MAX = 10
+    const MAX = 20
 
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
@@ -81,50 +79,70 @@
     //the map is public as changes will be made to it often
     const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(back))
 
-    var player_loc = {x: -1, y: -1}
+    const player_loc = { x: -1, y: -1 }
 
-    //all method calls will later be tied to inputs
-    generate()
-    show()
-    //alert("This is best played at 125% zoom on desktop")
-    document.addEventListener("keydown", function(event) {
-        switch (event.key) {
+    function handleInput(key) {
+        switch (key) {
             case "w":
-                if (MAP[player_loc.y-1][player_loc.x] === floor) {
+                if (MAP[player_loc.y - 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.y--
                     MAP[player_loc.y][player_loc.x] = player
+
+                    show()
+                } else {
+                    interact(MAP[player_loc.y - 1][player_loc.x])
                 }
                 break;
             case "a":
-                if (MAP[player_loc.y][player_loc.x-1] === floor) {
+                if (MAP[player_loc.y][player_loc.x - 1] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x--
                     MAP[player_loc.y][player_loc.x] = player
+
+                    show()
+                } else {
+                    interact(MAP[player_loc.y][player_loc.x - 1])
                 }
                 break;
             case "s":
-                if (MAP[player_loc.y+1][player_loc.x] === floor) {
+                if (MAP[player_loc.y + 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.y++
                     MAP[player_loc.y][player_loc.x] = player
+
+                    show()
+                } else {
+                    interact(MAP[player_loc.y + 1][player_loc.x])
                 }
                 break;
             case "d":
-                if (MAP[player_loc.y][player_loc.x+1] === floor) {
+                if (MAP[player_loc.y][player_loc.x + 1] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x++
                     MAP[player_loc.y][player_loc.x] = player
+
+                    show()
+                } else {
+                    interact(MAP[player_loc.y][player_loc.x + 1])
                 }
                 break;
         }
-        console.log(event.key)
-        show()
-    })
+    }
 
+    function interact(item) {
+        console.log(item)
+    }
+
+    function start() {
+        document.getElementById("start").style.display = "none"
+        document.getElementById("menu").style.display = "block"
+        generate()
+        show()
+        document.addEventListener("keydown", function(event) {handleInput(event.key)})
+    }
 
     function generate() {
-
         //create and place rooms
         let coords = []
         while (coords.length < NUM_ROOMS) {
@@ -157,8 +175,8 @@
             corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
 
-        player_loc.x = coords[coords.length-1].x
-        player_loc.y =  coords[coords.length-1].y
+        player_loc.x = coords[coords.length - 1].x
+        player_loc.y = coords[coords.length - 1].y
         MAP[player_loc.y][player_loc.x] = player
         //MAP[coords[0].y][coords[0].x] = "<span class='visible'>@</span>"
     }
