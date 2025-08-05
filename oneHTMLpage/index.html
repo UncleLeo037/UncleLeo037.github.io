@@ -13,16 +13,19 @@
             text-wrap: nowrap;
             cursor: context-menu;
 
-            /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively 
+            /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively */
             user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
-            */
+        }
+
+        #menu {
+            font-size: large;
         }
 
         #display {
             transform: scaleY(0.5);
-            font-size: large;
+            font-size: xx-large;
         }
 
         .visible,
@@ -61,13 +64,13 @@
 
 <script>
     //parameters for map size
-    const GRID_HEIGHT = 42
-    const GRID_WIDTH = 128
+    const GRID_HEIGHT = 27
+    const GRID_WIDTH = 133
 
     //parameters for room generations
-    const NUM_ROOMS = 10
-    const MIN = 5
-    const MAX = 20
+    const NUM_ROOMS = 8
+    const MIN = 7
+    const MAX = 17
 
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
@@ -86,10 +89,10 @@
             case "w":
                 if (MAP[player_loc.y - 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                     player_loc.y--
                     MAP[player_loc.y][player_loc.x] = player
-
-                    show()
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y - 1][player_loc.x])
                 }
@@ -99,8 +102,7 @@
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x--
                     MAP[player_loc.y][player_loc.x] = player
-
-                    show()
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y][player_loc.x - 1])
                 }
@@ -108,10 +110,10 @@
             case "s":
                 if (MAP[player_loc.y + 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                     player_loc.y++
                     MAP[player_loc.y][player_loc.x] = player
-
-                    show()
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y + 1][player_loc.x])
                 }
@@ -121,8 +123,7 @@
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x++
                     MAP[player_loc.y][player_loc.x] = player
-
-                    show()
+                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y][player_loc.x + 1])
                 }
@@ -178,6 +179,7 @@
         player_loc.x = coords[coords.length - 1].x
         player_loc.y = coords[coords.length - 1].y
         MAP[player_loc.y][player_loc.x] = player
+        show()
         //MAP[coords[0].y][coords[0].x] = "<span class='visible'>@</span>"
     }
 
@@ -229,7 +231,7 @@
         let display = document.getElementById("display")
         display.innerHTML = ""
         for (let i = 0; i < MAP.length; i++) {
-            display.innerHTML += MAP[i].join("") + "<br>"
+            display.innerHTML += `<div id="line${i}">${MAP[i].join("")}</div>`
         }
     }
 
