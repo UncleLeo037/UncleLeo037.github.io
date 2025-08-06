@@ -14,9 +14,9 @@
             cursor: context-menu;
 
             /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively */
-            user-select: none;
+            /*user-select: none;
             -webkit-user-select: none;
-            -ms-user-select: none;
+            -ms-user-select: none; */
         }
 
         #menu {
@@ -63,24 +63,33 @@
 </body>
 
 <script>
-    //parameters for map size
+    //starting parameters for map size
     const GRID_HEIGHT = 27
-    const GRID_WIDTH = 133
+    const GRID_WIDTH = GRID_HEIGHT * 2
 
-    //parameters for room generations
-    const NUM_ROOMS = 8
-    const MIN = 7
-    const MAX = 17
+    //starting parameters for room generations
+    const NUM_ROOMS = 6
+    const MIN = 4
+    const MAX = 9
 
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
     const v_wall = "<span class='visible'>|</span>"
     const back = "#"
     const floor = "."
+
     const player = "<span class='visible'>i</span>"
+    const portal = "<span class='visible'>@</span>"
+
+    const slime = "<span class='visible'>~</span>"
+    const ghost = "<span class='visible'>;</span>"
+    const crawl = "<span class='visible'>*</span>"
+    const bhead = "<span class='visible'>l</span>"
+    const grave = "<span class='visible'>A</span>"
+    const lootd = "<span class='visible'>H</span>"
 
     //the map is public as changes will be made to it often
-    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(back))
+    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH))
 
     const player_loc = { x: -1, y: -1 }
 
@@ -89,10 +98,8 @@
             case "w":
                 if (MAP[player_loc.y - 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                     player_loc.y--
                     MAP[player_loc.y][player_loc.x] = player
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y - 1][player_loc.x])
                 }
@@ -102,7 +109,6 @@
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x--
                     MAP[player_loc.y][player_loc.x] = player
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y][player_loc.x - 1])
                 }
@@ -110,10 +116,8 @@
             case "s":
                 if (MAP[player_loc.y + 1][player_loc.x] === floor) {
                     MAP[player_loc.y][player_loc.x] = floor
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                     player_loc.y++
                     MAP[player_loc.y][player_loc.x] = player
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y + 1][player_loc.x])
                 }
@@ -123,27 +127,25 @@
                     MAP[player_loc.y][player_loc.x] = floor
                     player_loc.x++
                     MAP[player_loc.y][player_loc.x] = player
-                    document.getElementById(`line${player_loc.y}`).innerHTML = MAP[player_loc.y].join("")
                 } else {
                     interact(MAP[player_loc.y][player_loc.x + 1])
                 }
                 break;
         }
-    }
-
-    function interact(item) {
-        console.log(item)
+        arrayToHTML()
     }
 
     function start() {
         document.getElementById("start").style.display = "none"
         document.getElementById("menu").style.display = "block"
         generate()
-        show()
-        document.addEventListener("keydown", function(event) {handleInput(event.key)})
+        document.addEventListener("keydown", function (event) { handleInput(event.key) })
     }
 
     function generate() {
+        //make map empty
+        MAP.forEach(line => line.fill(back))
+
         //create and place rooms
         let coords = []
         while (coords.length < NUM_ROOMS) {
@@ -159,6 +161,7 @@
                     x: room.xCoord + Math.floor(room.width / 2)
                 })
                 roomToArray(room)
+
             }
         }
 
@@ -176,11 +179,19 @@
             corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
 
+        //place player and interactables
         player_loc.x = coords[coords.length - 1].x
         player_loc.y = coords[coords.length - 1].y
         MAP[player_loc.y][player_loc.x] = player
-        show()
-        //MAP[coords[0].y][coords[0].x] = "<span class='visible'>@</span>"
+
+        MAP[coords[0].y][coords[0].x] = portal
+        MAP[coords[1].y][coords[1].x] = grave
+        MAP[coords[2].y][coords[2].x] = ghost
+
+        //enemyToArray()
+
+        //code that outputs array to screen
+        arrayToHTML()
     }
 
     function getDist(start, goal) {
@@ -226,12 +237,24 @@
         }
     }
 
-    //takes MAP array and outputs it to screen
-    function show() {
-        let display = document.getElementById("display")
-        display.innerHTML = ""
+    //populates map with interactables
+    function enemyToArray() {
+        for (let y = 0; y < GRID_HEIGHT; y++) {
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                if (MAP[y][x] === floor) {
+                    let rng = Math.random()*100
+                    if (rng < 20) {
+                        MAP[y][x] = slime
+                    }
+                }
+            }
+        }
+    }
+
+    function arrayToHTML() {
+        document.getElementById("display").innerHTML = ""
         for (let i = 0; i < MAP.length; i++) {
-            display.innerHTML += `<div id="line${i}">${MAP[i].join("")}</div>`
+            document.getElementById("display").innerHTML += MAP[i].join("") + "<br>"
         }
     }
 
@@ -239,8 +262,14 @@
         console.log("You have opened your " + id)
     }
 
-    function move(id) {
-        console.log("You are moving to location x" + id.x + ", y" + id.y)
+    function interact(item) {
+        if (item === portal) {
+            generate()
+        }
+        if (item === grave) {
+            item = "<span class='visible'>H</span>"
+        }
+        console.log(item)
     }
 </script>
 
