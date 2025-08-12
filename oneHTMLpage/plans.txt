@@ -1,3 +1,0 @@
-redo wall generation to be seperate from room and corridoor placement.
-instead, everything will be reprisented by letters or words in array until it is run through a to UI function which for walls can check
-surrounding blocks to choose the character.

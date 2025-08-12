@@ -19,8 +19,10 @@
             -ms-user-select: none; */
         }
 
-        #menu {
-            font-size: large;
+        .health {
+            display: flex;
+            justify-content: space-between;
+            padding-inline: 10%;
         }
 
         #display {
@@ -32,6 +34,22 @@
         .visible * {
             color: white;
             background-color: black;
+        }
+
+        #hud {
+            font-size: large;
+        }
+
+        .menu {
+            margin-top: 1%;
+            padding-inline: 1%;
+            padding-block: .5%;
+            line-height: 2;
+            position: absolute;
+            z-index: 9;
+            left: 50%;
+            width: 5%;
+            border-style: dashed;
         }
 
         a:hover {
@@ -49,8 +67,8 @@
         <a onclick="start()">NEW GAME</a>
     </div>
 
-    <div class="visible" id="menu" style="display: none;">
-        <a onclick="menu('settings')">settings</a>
+    <div class="visible" id="hud" style="display: none;">
+        <a onclick="menu('settings')">options</a>
         |
         <a onclick="menu('status')">status</a>
         |
@@ -59,7 +77,44 @@
         <a onclick="menu('spells')">spells</a>
     </div>
 
+    <div class="menu visible" id="settings" style="display: none; transform: translate(-203%);">
+        > <a>item</a> <span>*</span> <br>
+    </div>
+
+    <div class="menu visible" id="status" style="display: none; transform: translate(-101%)">
+        > <a>item</a> <span>*</span> <br>
+    </div>
+
+    <div class="menu visible" id="inventory" style="display: none; transform: translate(1%);">
+        > <a>item</a> <span>*</span> <br>
+    </div>
+
+    <div class="menu visible" id="spells" style="display: none; transform: translate(103%)">
+        > <a>item</a> <span>*</span> <br>
+    </div>
+
+    <div class="visible health">
+        <span>Player</span> <span>Enemy</span>
+    </div>
+
+    <div class="visible health">
+        <span id="hp">||||||||||||||||||||</span> <span>||||||||||||||||||||||</span>
+    </div>
+
     <div id="display"></div>
+
+
+    <div id="legend">
+        player = i
+        portal = @
+
+        chest = open: H, closed: A
+
+        ghost = ;
+        headless = l
+        bug = *
+        slime = ~
+    </div>
 </body>
 
 <script>
@@ -69,16 +124,37 @@
 
     //starting parameters for room generations
     const NUM_ROOMS = 6
-    const MIN = 4
-    const MAX = 9
+    const MIN = 5
+    const MAX = 10
 
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
     const v_wall = "<span class='visible'>|</span>"
-    const back = "#"
-    const floor = "."
+    const back = "_"
+    const floor = "-"
 
-    const player = "<span class='visible'>i</span>"
+    const player = {
+        x: null,
+        y: null,
+        inventory: [],
+        health: 10,
+        toString() {
+            return "<span class='visible'>i</span>"
+        }
+    }
+
+    //base object for all chests
+    const chest = {
+        isOpen: false,
+        item: null,
+        toString() {
+            if (this.isOpen) {
+                return "<span class='visible'>H</span>"
+            }
+            return "<span class='visible'>A</span>"
+        }
+    }
+
     const portal = "<span class='visible'>@</span>"
 
     const slime = "<span class='visible'>~</span>"
@@ -89,46 +165,46 @@
     const lootd = "<span class='visible'>H</span>"
 
     //the map is public as changes will be made to it often
-    const MAP = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH))
+    const MAP = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH))
 
-    const player_loc = { x: -1, y: -1 }
+    const monsters = []
 
     function handleInput(key) {
         switch (key) {
             case "w":
-                if (MAP[player_loc.y - 1][player_loc.x] === floor) {
-                    MAP[player_loc.y][player_loc.x] = floor
-                    player_loc.y--
-                    MAP[player_loc.y][player_loc.x] = player
+                if (MAP[player.y - 1][player.x] === floor) {
+                    MAP[player.y][player.x] = floor
+                    player.y--
+                    MAP[player.y][player.x] = player
                 } else {
-                    interact(MAP[player_loc.y - 1][player_loc.x])
+                    interact({ x: player.x, y: player.y - 1 })
                 }
                 break;
             case "a":
-                if (MAP[player_loc.y][player_loc.x - 1] === floor) {
-                    MAP[player_loc.y][player_loc.x] = floor
-                    player_loc.x--
-                    MAP[player_loc.y][player_loc.x] = player
+                if (MAP[player.y][player.x - 1] === floor) {
+                    MAP[player.y][player.x] = floor
+                    player.x--
+                    MAP[player.y][player.x] = player
                 } else {
-                    interact(MAP[player_loc.y][player_loc.x - 1])
+                    interact({ x: player.x - 1, y: player.y })
                 }
                 break;
             case "s":
-                if (MAP[player_loc.y + 1][player_loc.x] === floor) {
-                    MAP[player_loc.y][player_loc.x] = floor
-                    player_loc.y++
-                    MAP[player_loc.y][player_loc.x] = player
+                if (MAP[player.y + 1][player.x] === floor) {
+                    MAP[player.y][player.x] = floor
+                    player.y++
+                    MAP[player.y][player.x] = player
                 } else {
-                    interact(MAP[player_loc.y + 1][player_loc.x])
+                    interact({ x: player.x, y: player.y + 1 })
                 }
                 break;
             case "d":
-                if (MAP[player_loc.y][player_loc.x + 1] === floor) {
-                    MAP[player_loc.y][player_loc.x] = floor
-                    player_loc.x++
-                    MAP[player_loc.y][player_loc.x] = player
+                if (MAP[player.y][player.x + 1] === floor) {
+                    MAP[player.y][player.x] = floor
+                    player.x++
+                    MAP[player.y][player.x] = player
                 } else {
-                    interact(MAP[player_loc.y][player_loc.x + 1])
+                    interact({ x: player.x + 1, y: player.y })
                 }
                 break;
         }
@@ -137,11 +213,81 @@
 
     function start() {
         document.getElementById("start").style.display = "none"
-        document.getElementById("menu").style.display = "block"
+        document.getElementById("hud").style.display = "block"
         generate()
-        document.addEventListener("keydown", function (event) { handleInput(event.key) })
+        document.addEventListener("keydown", event => { handleInput(event.key) })
+        //console.log(JSON.stringify(MAP))
     }
 
+    //populates map with interactables
+    function enemyToArray() {
+        for (let y = 1; y < GRID_HEIGHT - 1; y++) {
+            for (let x = 1; x < GRID_WIDTH - 1; x++) {
+
+                //checks location won't block paths
+                let open = true
+                for (let i = y - 1; i <= y + 1; i++) {
+                    for (let j = x - 1; j <= x + 1; j++) {
+                        if (MAP[i][j] != floor) {
+                            open = false
+                        }
+                    }
+                }
+
+                //code to place everything
+                if (open) {
+                    let rng = Math.random() * 100
+                    if (rng < 5) {
+                        MAP[y][x] = grave
+                    }
+                }
+            }
+        }
+    }
+
+    function arrayToHTML() {
+        let hyperText = ""
+        for (let i = 0; i < MAP.length; i++) {
+            hyperText += MAP[i].join("") + "<br>"
+        }
+        document.getElementById("display").innerHTML = hyperText
+    }
+
+    function menu(id) {
+        elem = document.getElementById(id)
+        if (elem.style.display === "none") {
+            elem.style.display = "block"
+        } else {
+            elem.style.display = "none"
+        }
+        //console.log("You have opened your " + id)
+    }
+
+    function interact(i) {
+        switch (MAP[i.y][i.x]) {
+            case portal:
+                generate()
+                break;
+            case grave:
+                MAP[i.y][i.x] = "<span class='visible'>H</span>"
+                break
+        }
+        console.log(MAP[i.y][i.x])
+    }
+
+    function pathfinder() {
+        monsters.forEach(m => {
+            if (m.x - player_loc.x < 9 && m.y - player_loc.y < 9) {
+
+            } else {
+
+            }
+        })
+    }
+</script>
+
+<!--Dungeon Generation Methods-->
+<script>
     function generate() {
         //make map empty
         MAP.forEach(line => line.fill(back))
@@ -175,20 +321,22 @@
                     dist = temp
                     goal = coords[j]
                 }
+
             }
             corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
 
         //place player and interactables
-        player_loc.x = coords[coords.length - 1].x
-        player_loc.y = coords[coords.length - 1].y
-        MAP[player_loc.y][player_loc.x] = player
+        player.x = coords[coords.length - 1].x
+        player.y = coords[coords.length - 1].y
+        MAP[player.y][player.x] = player
 
         MAP[coords[0].y][coords[0].x] = portal
-        MAP[coords[1].y][coords[1].x] = grave
-        MAP[coords[2].y][coords[2].x] = ghost
 
-        //enemyToArray()
+        //MAP[coords[1].y][coords[1].x] = grave
+        //MAP[coords[2].y][coords[2].x] = ghost
+
+        enemyToArray()
 
         //code that outputs array to screen
         arrayToHTML()
@@ -235,41 +383,6 @@
                 MAP[c.y[0] + 1][j] = h_wall
             }
         }
-    }
-
-    //populates map with interactables
-    function enemyToArray() {
-        for (let y = 0; y < GRID_HEIGHT; y++) {
-            for (let x = 0; x < GRID_WIDTH; x++) {
-                if (MAP[y][x] === floor) {
-                    let rng = Math.random()*100
-                    if (rng < 20) {
-                        MAP[y][x] = slime
-                    }
-                }
-            }
-        }
-    }
-
-    function arrayToHTML() {
-        document.getElementById("display").innerHTML = ""
-        for (let i = 0; i < MAP.length; i++) {
-            document.getElementById("display").innerHTML += MAP[i].join("") + "<br>"
-        }
-    }
-
-    function menu(id) {
-        console.log("You have opened your " + id)
-    }
-
-    function interact(item) {
-        if (item === portal) {
-            generate()
-        }
-        if (item === grave) {
-            item = "<span class='visible'>H</span>"
-        }
-        console.log(item)
     }
 </script>
 

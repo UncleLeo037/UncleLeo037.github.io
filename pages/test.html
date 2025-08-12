@@ -1,0 +1,18 @@
+<html>
+<script>
+    const chest = {
+        isOpen: false,
+        item: null,
+        toString() {
+            if (this.isOpen) {
+                return "<span class='visible'>H</span>"
+            }
+            return "<span class='visible'>A</span>"
+        }
+    }
+
+    let temp = Object.create(chest)
+    temp.item = "sword"
+    alert(temp.item)
+</script>
+</html>
