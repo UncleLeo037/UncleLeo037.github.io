@@ -4,6 +4,8 @@
     <meta name="description" content="Game like rogue">
     <meta name="author" content="Leo Muller">
     <meta name="github" content="UncleLeo037">
+
+    <title>A game like Rogue!!!</title>
     <style>
         * {
             background-color: black;
@@ -12,17 +14,17 @@
             text-align: center;
             text-wrap: nowrap;
             cursor: context-menu;
+            overflow: hidden;
+            text-decoration: none;
 
             /* disables text highlighting on Standard syntax, Safari, IE 10 and IE 11 respectively */
             /*user-select: none;
             -webkit-user-select: none;
-            -ms-user-select: none; */
+            -ms-user-select: none;*/
         }
 
-        .health {
-            display: flex;
-            justify-content: space-between;
-            padding-inline: 10%;
+        #HUD, #start {
+            transform: scaleX(1.5);
         }
 
         #display {
@@ -36,96 +38,71 @@
             background-color: black;
         }
 
-        #hud {
-            font-size: large;
-        }
-
-        .menu {
-            margin-top: 1%;
-            padding-inline: 1%;
-            padding-block: .5%;
-            line-height: 2;
-            position: absolute;
-            z-index: 9;
-            left: 50%;
-            width: 5%;
-            border-style: dashed;
-        }
-
         a:hover {
             cursor: pointer;
             color: black;
             background-color: white;
         }
+
+        .heart {
+            display: inline-block;
+            transform: rotate(-90deg);
+            letter-spacing: -3px;
+            width: 13px;
+        }
     </style>
 </head>
 
 <body>
-    <h1 class="visible"> - - - Logue - - - </h1>
-
-    <div class="visible" id="start">
+    <div id="start" class="visible">
+        <h1> - - - Logue - - - </h1>
         <a onclick="start()">NEW GAME</a>
     </div>
 
-    <div class="visible" id="hud" style="display: none;">
-        <a onclick="menu('settings')">options</a>
-        |
-        <a onclick="menu('status')">status</a>
-        |
-        <a onclick="menu('inventory')">inventory</a>
-        |
-        <a onclick="menu('spells')">spells</a>
-    </div>
-
-    <div class="menu visible" id="settings" style="display: none; transform: translate(-203%);">
-        > <a>item</a> <span>*</span> <br>
-    </div>
-
-    <div class="menu visible" id="status" style="display: none; transform: translate(-101%)">
-        > <a>item</a> <span>*</span> <br>
-    </div>
-
-    <div class="menu visible" id="inventory" style="display: none; transform: translate(1%);">
-        > <a>item</a> <span>*</span> <br>
-    </div>
-
-    <div class="menu visible" id="spells" style="display: none; transform: translate(103%)">
-        > <a>item</a> <span>*</span> <br>
-    </div>
-
-    <div class="visible health">
-        <span>Player</span> <span>Enemy</span>
-    </div>
-
-    <div class="visible health">
-        <span id="hp">||||||||||||||||||||</span> <span>||||||||||||||||||||||</span>
-    </div>
+    <header id="HUD" class="visible" style="display: none;">
+        <div id="menu">
+            <a>equipment</a>
+            |
+            <a>inventory</a>
+            |
+            <a>character</a>
+            |
+            <a>settings</a>
+        </div>
+        <div id="health" style="text-align: left; margin-left: 30%">
+            Health
+            <br><span id="hp"></span>
+        </div>
+    </header>
 
     <div id="display"></div>
 
+    <footer style="display: none;">
+        <pre id="legend">
+            player = i
+            portal = @
 
-    <div id="legend">
-        player = i
-        portal = @
+            chest = open: H, closed: A
 
-        chest = open: H, closed: A
-
-        ghost = ;
-        headless = l
-        bug = *
-        slime = ~
-    </div>
+            monsters:
+                ghost = ;
+                headless = l
+                bug = *
+                slime = ~
+                snake = s
+                ghoul = j
+        </pre>
+    </footer>
 </body>
 
 <script>
     //starting parameters for map size
-    const GRID_HEIGHT = 27
+    const GRID_HEIGHT = 32
     const GRID_WIDTH = GRID_HEIGHT * 2
-
-    //starting parameters for room generations
     const NUM_ROOMS = 6
     const MIN = 5
     const MAX = 10
+    const LOOT = 5 // % chance of chest spawning per tile
 
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
@@ -137,38 +114,50 @@
         x: null,
         y: null,
         inventory: [],
-        health: 10,
+        hp: 2,
+        atk: 1,//physical attack power
+        mgk: 0,//magical attack power
+        def: 0,//physical defence
+        res: 0,//magical defence
+        awr: 2,//awareness
         toString() {
             return "<span class='visible'>i</span>"
         }
     }
 
-    //base object for all chests
-    const chest = {
-        isOpen: false,
-        item: null,
+    class Chest {
+        #isOpen
+        constructor() {
+            this.#isOpen = false;
+        }
+        open() {
+            this.#isOpen = true;
+            //code to give player loot
+        }
         toString() {
-            if (this.isOpen) {
+            if (this.#isOpen) {
                 return "<span class='visible'>H</span>"
             }
             return "<span class='visible'>A</span>"
         }
     }
 
+    const shield = "<span class='shield'>ED&nbsp;</span>"
+    const heart = "<span class='heart'>&lt;3</span>"
     const portal = "<span class='visible'>@</span>"
 
+    //monsters
     const slime = "<span class='visible'>~</span>"
     const ghost = "<span class='visible'>;</span>"
     const crawl = "<span class='visible'>*</span>"
     const bhead = "<span class='visible'>l</span>"
-    const grave = "<span class='visible'>A</span>"
-    const lootd = "<span class='visible'>H</span>"
 
     //the map is public as changes will be made to it often
     const MAP = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH))
 
     const monsters = []
 
+    //main game control function
     function handleInput(key) {
         switch (key) {
             case "w":
@@ -207,45 +196,35 @@
                     interact({ x: player.x + 1, y: player.y })
                 }
                 break;
+            case "e":
+                player.hp--
+                break;
         }
+        monsters.forEach(monster => {
+            //code for each monster to do something
+        })
+        console.log(player.hp)
         arrayToHTML()
+        if (player.hp <= 0) {
+            document.getElementById("HUD").style.display = "none"
+            document.getElementById("display").innerHTML = "<div class='visible'>GAME OVER<br><br> press <a href=''>[HERE]</a> to play again<div>"
+        }
     }
 
     function start() {
         document.getElementById("start").style.display = "none"
-        document.getElementById("hud").style.display = "block"
+        document.getElementById("HUD").style.display = "block"
         generate()
         document.addEventListener("keydown", event => { handleInput(event.key) })
-        //console.log(JSON.stringify(MAP))
-    }
-
-    //populates map with interactables
-    function enemyToArray() {
-        for (let y = 1; y < GRID_HEIGHT - 1; y++) {
-            for (let x = 1; x < GRID_WIDTH - 1; x++) {
-
-                //checks location won't block paths
-                let open = true
-                for (let i = y - 1; i <= y + 1; i++) {
-                    for (let j = x - 1; j <= x + 1; j++) {
-                        if (MAP[i][j] != floor) {
-                            open = false
-                        }
-                    }
-                }
-
-                //code to place everything
-                if (open) {
-                    let rng = Math.random() * 100
-                    if (rng < 5) {
-                        MAP[y][x] = grave
-                    }
-                }
-            }
-        }
+        player.hp = 2
     }
 
     function arrayToHTML() {
+        let health = ""
+        for (let i = 0; i < player.hp; i++) {
+            health += heart
+        }
+        document.getElementById("hp").innerHTML = health
         let hyperText = ""
         for (let i = 0; i < MAP.length; i++) {
             hyperText += MAP[i].join("") + "<br>"
@@ -253,36 +232,13 @@
         document.getElementById("display").innerHTML = hyperText
     }
 
-    function menu(id) {
-        elem = document.getElementById(id)
-        if (elem.style.display === "none") {
-            elem.style.display = "block"
-        } else {
-            elem.style.display = "none"
-        }
-        //console.log("You have opened your " + id)
-    }
-
     function interact(i) {
-        switch (MAP[i.y][i.x]) {
-            case portal:
-                generate()
-                break;
-            case grave:
-                MAP[i.y][i.x] = "<span class='visible'>H</span>"
-                break
+        if (MAP[i.y][i.x] instanceof Chest) {
+            MAP[i.y][i.x].open()
         }
-        console.log(MAP[i.y][i.x])
-    }
-
-    function pathfinder() {
-        monsters.forEach(m => {
-            if (m.x - player_loc.x < 9 && m.y - player_loc.y < 9) {
-
-            } else {
-
-            }
-        })
+        if (MAP[i.y][i.x] === portal) {
+            generate()
+        }
     }
 </script>
 
@@ -326,17 +282,15 @@
             corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
 
-        //place player and interactables
+        //place player and exit
         player.x = coords[coords.length - 1].x
         player.y = coords[coords.length - 1].y
-        MAP[player.y][player.x] = player
+        MAP[player.y][player.x] = player //very important that only player coords dictate player location
 
         MAP[coords[0].y][coords[0].x] = portal
 
-        //MAP[coords[1].y][coords[1].x] = grave
-        //MAP[coords[2].y][coords[2].x] = ghost
-
-        enemyToArray()
+        //fills array with chests and monsters
+        chestToArray()
 
         //code that outputs array to screen
         arrayToHTML()
@@ -381,6 +335,32 @@
             }
             if (MAP[c.y[0] + 1][j] === back) {
                 MAP[c.y[0] + 1][j] = h_wall
+            }
+        }
+    }
+
+    //populates map with enemies
+    function chestToArray() {
+        for (let y = 1; y < GRID_HEIGHT - 1; y++) {
+            for (let x = 1; x < GRID_WIDTH - 1; x++) {
+
+                //checks location won't block paths
+                let open = true
+                for (let i = y - 1; i <= y + 1; i++) {
+                    for (let j = x - 1; j <= x + 1; j++) {
+                        if (MAP[i][j] != floor) {
+                            open = false
+                        }
+                    }
+                }
+
+                //code to place everything
+                if (open) {
+                    let rng = Math.random() * 100
+                    if (rng < 5) {
+                        MAP[y][x] = new Chest()
+                    }
+                }
             }
         }
     }
