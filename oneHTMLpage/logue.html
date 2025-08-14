@@ -23,7 +23,8 @@
             -ms-user-select: none;*/
         }
 
-        #HUD, #start {
+        #HUD,
+        #start {
             transform: scaleX(1.5);
         }
 
@@ -168,6 +169,7 @@
                 } else {
                     interact({ x: player.x, y: player.y - 1 })
                 }
+                arrayToHTML()
                 break;
             case "a":
                 if (MAP[player.y][player.x - 1] === floor) {
@@ -177,6 +179,7 @@
                 } else {
                     interact({ x: player.x - 1, y: player.y })
                 }
+                arrayToHTML()
                 break;
             case "s":
                 if (MAP[player.y + 1][player.x] === floor) {
@@ -186,6 +189,7 @@
                 } else {
                     interact({ x: player.x, y: player.y + 1 })
                 }
+                arrayToHTML()
                 break;
             case "d":
                 if (MAP[player.y][player.x + 1] === floor) {
@@ -195,20 +199,21 @@
                 } else {
                     interact({ x: player.x + 1, y: player.y })
                 }
+                arrayToHTML()
                 break;
             case "e":
                 player.hp--
+                if (player.hp <= 0) {
+                    document.getElementById("HUD").style.display = "none"
+                    document.getElementById("display").innerHTML = "<div class='visible'>GAME OVER<br><br> press <a href=''>[HERE]</a> to play again<div>"
+                }
+                updateHealth()
                 break;
         }
         monsters.forEach(monster => {
             //code for each monster to do something
         })
-        console.log(player.hp)
-        arrayToHTML()
-        if (player.hp <= 0) {
-            document.getElementById("HUD").style.display = "none"
-            document.getElementById("display").innerHTML = "<div class='visible'>GAME OVER<br><br> press <a href=''>[HERE]</a> to play again<div>"
-        }
+        //arrayToHTML() currently only calling update array on player movement, should be applicable
     }
 
     function start() {
@@ -217,14 +222,10 @@
         generate()
         document.addEventListener("keydown", event => { handleInput(event.key) })
         player.hp = 2
+        updateHealth()
     }
 
     function arrayToHTML() {
-        let health = ""
-        for (let i = 0; i < player.hp; i++) {
-            health += heart
-        }
-        document.getElementById("hp").innerHTML = health
         let hyperText = ""
         for (let i = 0; i < MAP.length; i++) {
             hyperText += MAP[i].join("") + "<br>"
@@ -239,6 +240,14 @@
         if (MAP[i.y][i.x] === portal) {
             generate()
         }
+    }
+
+    function updateHealth() {
+        let health = ""
+        for (let i = 0; i < player.hp; i++) {
+            health += heart
+        }
+        document.getElementById("hp").innerHTML = health
     }
 </script>
 
