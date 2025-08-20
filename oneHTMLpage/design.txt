@@ -1,0 +1,19 @@
+slime - sometimes splits, mostly random movement
+
+ghost - moves directly towards player ignoring walls (will need to include tile saving to prevent incorrect char replacement)
+
+dullahan - moves blindly changing direction randomly upon hitting walls, will walk in last direction of player if attacked
+
+lamia - 
+
+snake - 
+
+armor - stands still until player passes, then will follow player movement path attacking if player stops
+
+skull - cannot move, only attacks player if next to
+
+bug - moves in random directions
+
+scarecrow - is closely tied to post but will have more attack range than skull reprisented by t
+
+if any find themselves next to a player they will attack instead of moving

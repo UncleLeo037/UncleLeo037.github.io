@@ -62,13 +62,15 @@
 
     <header id="HUD" class="visible" style="display: none;">
         <div id="menu">
-            <a>equipment</a>
+            [e] <a>equipment</a>
             |
-            <a>inventory</a>
+            [i] <a>inventory</a>
             |
-            <a>character</a>
+            [c] <a>character</a>
             |
-            <a>settings</a>
+            [j] <a>journal</a>
+            |
+            [esc] <a>settings</a>
         </div>
         <div id="health" style="text-align: left; margin-left: 30%">
             Health
@@ -79,300 +81,39 @@
     <div id="display"></div>
 
     <footer style="display: none;">
-        <pre id="legend">
-            player = i
-            portal = @
-
-            chest = open: H, closed: A
-
-            monsters:
-                ghost = ;
-                headless = l
-                bug = *
-                slime = ~
-                snake = s
-                ghoul = j
-        </pre>
     </footer>
 </body>
 
 <script>
-    //starting parameters for map size
-    const GRID_HEIGHT = 32
-    const GRID_WIDTH = GRID_HEIGHT * 2
-    const NUM_ROOMS = 6
-    const MIN = 5
-    const MAX = 10
-    const LOOT = 5 // % chance of chest spawning per tile
-
     //constant html elements
     const h_wall = "<span class='visible'>=</span>"
     const v_wall = "<span class='visible'>|</span>"
     const back = "_"
     const floor = "-"
-
-    const player = {
-        x: null,
-        y: null,
-        inventory: [],
-        hp: 2,
-        atk: 1,//physical attack power
-        mgk: 0,//magical attack power
-        def: 0,//physical defence
-        res: 0,//magical defence
-        awr: 2,//awareness
-        toString() {
-            return "<span class='visible'>i</span>"
-        }
-    }
-
-    class Chest {
-        #isOpen
-        constructor() {
-            this.#isOpen = false;
-        }
-        open() {
-            this.#isOpen = true;
-            //code to give player loot
-        }
-        toString() {
-            if (this.#isOpen) {
-                return "<span class='visible'>H</span>"
-            }
-            return "<span class='visible'>A</span>"
-        }
-    }
-
-    const shield = "<span class='shield'>ED&nbsp;</span>"
-    const heart = "<span class='heart'>&lt;3</span>"
     const portal = "<span class='visible'>@</span>"
-
-    //monsters
-    const slime = "<span class='visible'>~</span>"
-    const ghost = "<span class='visible'>;</span>"
-    const crawl = "<span class='visible'>*</span>"
-    const bhead = "<span class='visible'>l</span>"
-
-    //the map is public as changes will be made to it often
-    const MAP = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH))
-
-    const monsters = []
-
-    //main game control function
-    function handleInput(key) {
-        switch (key) {
-            case "w":
-                if (MAP[player.y - 1][player.x] === floor) {
-                    MAP[player.y][player.x] = floor
-                    player.y--
-                    MAP[player.y][player.x] = player
-                } else {
-                    interact({ x: player.x, y: player.y - 1 })
-                }
-                arrayToHTML()
-                break;
-            case "a":
-                if (MAP[player.y][player.x - 1] === floor) {
-                    MAP[player.y][player.x] = floor
-                    player.x--
-                    MAP[player.y][player.x] = player
-                } else {
-                    interact({ x: player.x - 1, y: player.y })
-                }
-                arrayToHTML()
-                break;
-            case "s":
-                if (MAP[player.y + 1][player.x] === floor) {
-                    MAP[player.y][player.x] = floor
-                    player.y++
-                    MAP[player.y][player.x] = player
-                } else {
-                    interact({ x: player.x, y: player.y + 1 })
-                }
-                arrayToHTML()
-                break;
-            case "d":
-                if (MAP[player.y][player.x + 1] === floor) {
-                    MAP[player.y][player.x] = floor
-                    player.x++
-                    MAP[player.y][player.x] = player
-                } else {
-                    interact({ x: player.x + 1, y: player.y })
-                }
-                arrayToHTML()
-                break;
-            case "e":
-                player.hp--
-                if (player.hp <= 0) {
-                    document.getElementById("HUD").style.display = "none"
-                    document.getElementById("display").innerHTML = "<div class='visible'>GAME OVER<br><br> press <a href=''>[HERE]</a> to play again<div>"
-                }
-                updateHealth()
-                break;
-        }
-        monsters.forEach(monster => {
-            //code for each monster to do something
-        })
-        //arrayToHTML() currently only calling update array on player movement, should be applicable
-    }
+    const heart = "<span class='heart'>&lt;3</span>"
 
     function start() {
         document.getElementById("start").style.display = "none"
         document.getElementById("HUD").style.display = "block"
-        generate()
-        document.addEventListener("keydown", event => { handleInput(event.key) })
-        player.hp = 2
-        updateHealth()
-    }
-
-    function arrayToHTML() {
-        let hyperText = ""
-        for (let i = 0; i < MAP.length; i++) {
-            hyperText += MAP[i].join("") + "<br>"
-        }
-        document.getElementById("display").innerHTML = hyperText
-    }
-
-    function interact(i) {
-        if (MAP[i.y][i.x] instanceof Chest) {
-            MAP[i.y][i.x].open()
-        }
-        if (MAP[i.y][i.x] === portal) {
-            generate()
-        }
-    }
-
-    function updateHealth() {
-        let health = ""
-        for (let i = 0; i < player.hp; i++) {
-            health += heart
-        }
-        document.getElementById("hp").innerHTML = health
-    }
-</script>
-
-<!--Dungeon Generation Methods-->
-<script>
-    function generate() {
-        //make map empty
-        MAP.forEach(line => line.fill(back))
-
-        //create and place rooms
-        let coords = []
-        while (coords.length < NUM_ROOMS) {
-            let room = {
-                height: Math.floor(Math.random() * (MAX - MIN)) + MIN,
-                width: Math.floor(Math.random() * (MAX - MIN)) + MIN,
-                yCoord: Math.floor(Math.random() * GRID_HEIGHT),
-                xCoord: Math.floor(Math.random() * GRID_WIDTH),
-            }
-            if (!(room.xCoord + room.width > GRID_WIDTH || room.yCoord + room.height > GRID_HEIGHT)) {
-                coords.push({
-                    y: room.yCoord + Math.floor(room.height / 2),
-                    x: room.xCoord + Math.floor(room.width / 2)
-                })
-                roomToArray(room)
-
-            }
-        }
-
-        //loop through coords and add shortest pairs to corridors
-        for (let i = 0; i < coords.length - 1; i++) {
-            let goal = coords[i + 1]
-            let dist = getDist(coords[i], goal)
-            for (let j = i + 2; j < coords.length; j++) {
-                let temp = getDist(coords[i], coords[j])
-                if (temp < dist) {
-                    dist = temp
-                    goal = coords[j]
-                }
-
-            }
-            corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
-        }
-
-        //place player and exit
-        player.x = coords[coords.length - 1].x
-        player.y = coords[coords.length - 1].y
-        MAP[player.y][player.x] = player //very important that only player coords dictate player location
-
-        MAP[coords[0].y][coords[0].x] = portal
-
-        //fills array with chests and monsters
-        chestToArray()
-
-        //code that outputs array to screen
-        arrayToHTML()
+        Dungeon.generate()
+        document.addEventListener("keydown", event => { Player.handleInput(event.key) })
+        Player.updateHealth()
     }
 
     function getDist(start, goal) {
-        Math.abs((start.x - goal.x) * (start.y - goal.y))
-    }
-
-    //adds HTML accurate elements to array for rooms
-    function roomToArray(room) {
-        for (let i = room.yCoord; i < room.yCoord + room.height; i++) {
-            for (let j = room.xCoord; j < room.xCoord + room.width; j++) {
-                if (!(MAP[i][j] === floor)) {
-                    if (i == room.yCoord || i == room.yCoord + room.height - 1) {
-                        MAP[i][j] = h_wall
-                    } else if (j == room.xCoord || j == room.xCoord + room.width - 1) {
-                        MAP[i][j] = v_wall
-                    } else {
-                        MAP[i][j] = floor
-                    }
-                }
-            }
-        }
-    }
-
-    //adds HTML accurate elements to array for corridors
-    function corridorToArray(c) {
-        for (let i = Math.min(...c.y); i < Math.max(...c.y) + 1; i++) {
-            MAP[i][c.x[1]] = floor
-            if (MAP[i][c.x[1] - 1] === back) {
-                MAP[i][c.x[1] - 1] = v_wall
-            }
-            if (MAP[i][c.x[1] + 1] === back) {
-                MAP[i][c.x[1] + 1] = v_wall
-            }
-        }
-        for (let j = Math.min(...c.x); j < Math.max(...c.x) + 1; j++) {
-            MAP[c.y[0]][j] = floor
-            if (MAP[c.y[0] - 1][j] === back) {
-                MAP[c.y[0] - 1][j] = h_wall
-            }
-            if (MAP[c.y[0] + 1][j] === back) {
-                MAP[c.y[0] + 1][j] = h_wall
-            }
-        }
-    }
-
-    //populates map with enemies
-    function chestToArray() {
-        for (let y = 1; y < GRID_HEIGHT - 1; y++) {
-            for (let x = 1; x < GRID_WIDTH - 1; x++) {
-
-                //checks location won't block paths
-                let open = true
-                for (let i = y - 1; i <= y + 1; i++) {
-                    for (let j = x - 1; j <= x + 1; j++) {
-                        if (MAP[i][j] != floor) {
-                            open = false
-                        }
-                    }
-                }
-
-                //code to place everything
-                if (open) {
-                    let rng = Math.random() * 100
-                    if (rng < 5) {
-                        MAP[y][x] = new Chest()
-                    }
-                }
-            }
-        }
+        diffX = start.x - goal.x
+        diffY = start.y - goal.y
+        return Math.sqrt(diffX * diffX + diffY * diffY)
     }
 </script>
+
+<script src="player.js"></script>
+
+<script src="loot.js"></script>
+
+<script src="monster.js"></script>
+
+<script src="dungeon.js"></script>
 
 </html>
