@@ -9,6 +9,8 @@ class Player {
 
     //main game control function
     static handleInput(key) {
+        console.log(Dungeon.enemies.length);
+
         if (this.hp <=0) {
             return;
         }
