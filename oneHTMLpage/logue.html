@@ -105,37 +105,40 @@
 
 <script>
     //constant html elements
-    const h_wall = "<span class='visible'>=</span>"
-    const v_wall = "<span class='visible'>|</span>"
-    const back = "_"
-    const floor = "-"
-    const portal = "<span class='visible'>@</span>"
-    const heart = "<span class='heart'>&lt;3</span>"
+    const h_wall = "<span class='visible'>=</span>";
+    const v_wall = "<span class='visible'>|</span>";
+    const back = "_";
+    const floor = "-";
+    const portal = "<span class='visible'>@</span>";
+    const heart = "<span class='heart'>&lt;3</span>";
 
     function start() {
-        document.getElementById("start").style.display = "none"
-        document.getElementById("HUD").style.display = "block"
-        Dungeon.generate()
-        document.addEventListener("keydown", event => { Player.handleInput(event.key) })
-        Player.updateHealth()
+        document.getElementById("start").style.display = "none";
+        document.getElementById("HUD").style.display = "block";
+        Dungeon.generate();
+        document.addEventListener("keydown", event => {
+            Player.handleInput(event.key);
+
+        })
+        Player.updateHealth();
     }
 
     function getDist(start, goal) {
-        diffX = start.x - goal.x
-        diffY = start.y - goal.y
-        return Math.sqrt(diffX * diffX + diffY * diffY)
+        diffX = start.x - goal.x;
+        diffY = start.y - goal.y;
+        return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
     function openMenu(spec) {
-        return
-        let tab = document.getElementById("tab")
-        if (tab.style.display)
-        tab.style.display = "flex"
-        tab.innerHTML = ""
+        return;
+        let tab = document.getElementById("tab");
+        if (tab.style.display) {}
+        tab.style.display = "flex";
+        tab.innerHTML = "";
         switch (spec) {
             case "equipment":
                 Player.inventory.forEach(item => {
-                    tab.innerHTML += "<a>" + item + "</a>"
+                    tab.innerHTML += "<a>" + item + "</a>";
                 });
                 break;
         }

@@ -1,5 +1,5 @@
 class Chest {
-    #isOpen
+    #isOpen;
     constructor() {
         this.#isOpen = false;
     }
@@ -11,8 +11,8 @@ class Chest {
     }
     toString() {
         if (this.#isOpen) {
-            return "<span class='visible'>H</span>"
+            return "<span class='visible'>H</span>";
         }
-        return "<span class='visible'>A</span>"
+        return "<span class='visible'>A</span>";
     }
 }
