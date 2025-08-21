@@ -57,7 +57,7 @@
             background-color: black;
         }
 
-        a:hover {
+        .button:hover {
             cursor: pointer;
             color: black;
             background-color: white;
@@ -75,18 +75,18 @@
 <body>
     <div id="start" class="visible">
         <h1> - - - Logue - - - </h1>
-        <a onclick="start()">NEW GAME</a>
+        <span class="button" onclick="start()">NEW GAME</span>
     </div>
 
     <header id="HUD" class="visible" style="display: none;">
         <div id="menu">
-            <a onclick="openMenu('equipment')">equipment</a>
+            <span class="button" onclick="openMenu('equipment')">equipment</span>
             |
-            <a>status</a>
+            <span class="button">status</span>
             |
-            <a>codex</a>
+            <span class="button">codex</span>
             |
-            <a>manual</a>
+            <span class="button">manual</span>
         </div>
         <div id="health" style="text-align: left; margin-left: 30%">
             Health

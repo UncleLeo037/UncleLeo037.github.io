@@ -1,19 +1,19 @@
-slime - sometimes splits, mostly random movement
+slime - sometimes splits, random movement
 
 ghost - moves directly towards player ignoring walls (will need to include tile saving to prevent incorrect char replacement)
 
-dullahan - moves blindly changing direction randomly upon hitting walls, will walk in last direction of player if attacked
+beheaded - moves blindly changing direction upon hitting walls, moves in last direction of player when encountered at melee range
 
-lamia - 
+gorgon - moves 2 at a time but only moves every 2 turns, it's attack makes you skip a turn (turned to stone)
 
-snake - 
+snake - doesn't move normally. moves away after attacking you eating enemy in it's way, killing fed snake gives unique enemy loot s -> S
 
-armor - stands still until player passes, then will follow player movement path attacking if player stops
+armor - 
 
-skull - cannot move, only attacks player if next to
+skull - teleports
 
-bug - moves in random directions
+bug - moves in random incriments and at different ranges
 
-scarecrow - is closely tied to post but will have more attack range than skull reprisented by t
+scarecrow - 
 
 if any find themselves next to a player they will attack instead of moving
