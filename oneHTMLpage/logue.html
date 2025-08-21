@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
     <meta name="description" content="Game like rogue">
@@ -26,6 +26,24 @@
         #HUD,
         #start {
             transform: scaleX(1.5);
+        }
+
+        .overlay {
+            display: none;
+
+            z-index: 2;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 20%;
+            transform: translate(-50%, -50%);
+
+            border-style: dotted;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
+            white-space: initial;
+            padding: 5px;
+            text-align: center;
         }
 
         #display {
@@ -62,21 +80,22 @@
 
     <header id="HUD" class="visible" style="display: none;">
         <div id="menu">
-            [e] <a>equipment</a>
+            <a onclick="openMenu('equipment')">equipment</a>
             |
-            [i] <a>inventory</a>
+            <a>status</a>
             |
-            [c] <a>character</a>
+            <a>codex</a>
             |
-            [j] <a>journal</a>
-            |
-            [esc] <a>settings</a>
+            <a>manual</a>
         </div>
         <div id="health" style="text-align: left; margin-left: 30%">
             Health
             <br><span id="hp"></span>
         </div>
     </header>
+
+    <div id="tab" class="overlay">
+    </div>
 
     <div id="display"></div>
 
@@ -105,6 +124,21 @@
         diffX = start.x - goal.x
         diffY = start.y - goal.y
         return Math.sqrt(diffX * diffX + diffY * diffY)
+    }
+
+    function openMenu(spec) {
+        return
+        let tab = document.getElementById("tab")
+        if (tab.style.display)
+        tab.style.display = "flex"
+        tab.innerHTML = ""
+        switch (spec) {
+            case "equipment":
+                Player.inventory.forEach(item => {
+                    tab.innerHTML += "<a>" + item + "</a>"
+                });
+                break;
+        }
     }
 </script>
 

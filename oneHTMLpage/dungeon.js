@@ -41,7 +41,6 @@ class Dungeon {
                     dist = temp
                     goal = coords[j]
                 }
-
             }
             this.#corridorToArray({ y: [coords[i].y, goal.y], x: [[coords[i].x], goal.x] })
         }
@@ -119,6 +118,7 @@ class Dungeon {
     static #chestToArray() {
         for (let y = 1; y < this.#height - 1; y++) {
             for (let x = 1; x < this.#width - 1; x++) {
+
                 let chance = Math.random()
 
                 if (chance < 0.15) {
@@ -138,7 +138,7 @@ class Dungeon {
                         } else {
                             let mons = Object.values(monsEnum)
                             let rng = Math.floor(chance * mons.length * 10)
-                            let temp = new Monster(1, x, y, mons[rng], 1, 1, 1, 1)
+                            let temp = new Monster(x, y, mons[rng])
                             this.#map[y][x] = temp
                             this.enemies.push(temp)
                         }

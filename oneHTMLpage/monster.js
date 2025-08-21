@@ -11,16 +11,16 @@ const monsEnum = {
 
 class Monster {
 
-    constructor(h, x, y, b, a, d, m, r) {
+    constructor(x, y, b) {
         this.id = Dungeon.enemies.length
-        this.health = 2
+        this.health = 1
         this.x = x
         this.y = y
         this.breed = b
-        this.atk = a
-        this.def = d
-        this.mgk = m
-        this.res = r
+        this.atk = 1
+        this.def = 0
+        this.mgk = 0
+        this.res = 0
         this.awr = 5
     }
 
@@ -62,7 +62,7 @@ class Monster {
 
     damage() {
         this.health = this.health - Player.atk
-        if (this.health < 1) {
+        if (this.health <= 0) {
             Dungeon.mapSet(this.x, this.y, floor)
             Dungeon.enemies[this.id] = Dungeon.enemies[Dungeon.enemies.length - 1]
             Dungeon.enemies[this.id].id = this.id

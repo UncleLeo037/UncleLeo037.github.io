@@ -4,8 +4,10 @@ class Chest {
         this.#isOpen = false;
     }
     open() {
-        this.#isOpen = true;
-        //code to give player loot
+        if (!this.#isOpen) {
+            this.#isOpen = true;
+            //code to give player loot
+        }
     }
     toString() {
         if (this.#isOpen) {

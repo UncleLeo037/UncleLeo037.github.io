@@ -2,13 +2,17 @@
 class Player {
     static x = null
     static y = null
-    static inventory = []
+    static inventory = ["sword", "shield", "potion", "scroll"]
     static hp = 3
     static atk = 1
     static def = 0
 
     //main game control function
     static handleInput(key) {
+        if (this.hp <=0) {
+            return
+        }
+
         let movX = 0
         let movY = 0
         switch (key) {
@@ -26,6 +30,9 @@ class Player {
                 break;
             case "r":
                 break;
+            default:
+                //prevents other keypresses causing wait
+                return;
         }
         if (Dungeon.mapGet(this.x + movX, this.y + movY) === floor) {
             Dungeon.mapSet(this.x, this.y, floor)
@@ -40,11 +47,11 @@ class Player {
             enemy.movement()
         });
 
-        Dungeon.toHypertext()
-
         if (this.hp <= 0) {
             document.getElementById("HUD").style.display = "none"
             document.getElementById("display").innerHTML = "<div class='visible'>GAME OVER<br><br> press <a href=''>[HERE]</a> to play again<div>"
+        } else {
+            Dungeon.toHypertext()
         }
     }
 
@@ -60,7 +67,7 @@ class Player {
         }
     }
 
-    static updateHealth() {
+    static updateHealth(damage) {
         let health = ""
         for (let i = 0; i < this.hp; i++) {
             health += heart
