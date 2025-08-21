@@ -115,6 +115,7 @@ class Dungeon {
 
     //populates map with enemies
     static #chestToArray() {
+        this.enemies = [];
         for (let y = 1; y < this.#height - 1; y++) {
             for (let x = 1; x < this.#width - 1; x++) {
 
