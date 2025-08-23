@@ -29,6 +29,7 @@ class Player {
                 movX = 1;
                 break;
             case "r":
+                //console.log("resting")
                 break;
             default:
                 //prevents other keypresses causing wait

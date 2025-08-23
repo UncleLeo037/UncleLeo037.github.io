@@ -10,9 +10,9 @@ snake - doesn't move normally. moves away after attacking you eating enemy in it
 
 armor - 
 
-skull - teleports
+skull - teleports to and away from the player attacks twice be turn
 
-bug - moves in random incriments and at different ranges
+bug - moves in random increments and at different ranges
 
 scarecrow - 
 

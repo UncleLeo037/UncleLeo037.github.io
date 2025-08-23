@@ -6,6 +6,8 @@ class Chest {
     open() {
         if (!this.#isOpen) {
             this.#isOpen = true;
+            Player.hp++
+            Player.updateHealth()
             //code to give player loot
         }
     }

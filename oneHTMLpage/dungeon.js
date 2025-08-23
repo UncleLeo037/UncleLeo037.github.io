@@ -118,11 +118,10 @@ class Dungeon {
         this.enemies = [];
         for (let y = 1; y < this.#height - 1; y++) {
             for (let x = 1; x < this.#width - 1; x++) {
+                let chance = 0.2
+                let num = Math.random();
 
-                let chance = Math.random();
-
-                if (chance < 0.15) {
-                    //checks location won't block paths
+                if (num < chance) {
                     let open = true;
                     for (let i = y - 1; i <= y + 1; i++) {
                         for (let j = x - 1; j <= x + 1; j++) {
@@ -133,14 +132,36 @@ class Dungeon {
                     }
 
                     if (open) {
-                        if (chance > 0.1) {
-                            this.#map[y][x] = new Chest();
-                        } else {
-                            let mons = Object.values(monsEnum);
-                            let rng = Math.floor(chance * mons.length * 10);
-                            let temp = new Monster(x, y, mons[rng]);
-                            this.#map[y][x] = temp;
-                            this.enemies.push(temp);
+                        chance -= 0.1
+
+                        let spawn = Math.random() * 5
+
+                        let temp = new Chest();
+
+                        switch (Math.round(spawn)) {
+                            case 0:
+                                temp = new Slime(x, y);
+                                break;
+                            case 1:
+                                temp = new Headless(x, y);
+                                break;
+                            case 2:
+                                temp = new Ghost(x, y);
+                                break;
+                            case 3:
+                                temp = new Snake(x, y);
+                                break;
+                            case 4:
+                                temp = new Gorgon(x, y);
+                                break;
+                            case 5:
+                                temp = new Skull(x, y);
+                                break;
+                        }
+
+                        this.#map[y][x] = temp;
+                        if (temp instanceof Monster) {
+                            this.enemies.push(temp)
                         }
                     }
                 }
